@@ -1,0 +1,64 @@
+xmms-syncup is a C language plugin to the XMMS media player that provides
+real-time synchronization of audio playback.  This is useful in environments
+such as dorms, houses, or work environments where multiple networked computers
+have independently driven speakers.  
+
+xmms-syncup works by periodically querying the server as to which file it is
+playing, and how far it is into it (XMMS provides millisecond resolution for
+the playback cursor, though in practice this is reliable only to 10ms,
+depending on the sound system in use).  xmms-syncup uses heuristic algorithms
+to set the local player's cursor to match the server's as closely as possible.
+This is obviously dependent on the ping times between the machines; however, we
+can reasonable assume that machines whose speakers are close enough to be heard
+by one listener will have short ping times (our 100baseT ethernet has sub-1ms
+ping, more than sufficient).
+
+Since queries to the server are frequent, clients recover quickly from song
+changes or manual seeking on the server.  Any clock skew (noticed e.g. when
+using ALSA and OSS on different machines) is also corrected for inherently.
+
+xmms-syncup is not a streaming server and does not provide for file sharing:
+file paths in the server's playlist must be valid on all hosts.  We have found
+NFS to be an acceptable solution for file distribution.  Alternatives (Samba,
+AFS) would likely work as well.  The playlist itself is shared, however: if the
+client detects that its playlist differs from the server's, it clears the local
+list and requests a copy from the server.  In practice, this means that changes
+made in the server's player are propogated quickly to the clients.
+
+xmms-syncup has achieved acceptable stability and performance for our small
+workgroup.  We primarily are interested in using SourceForge's hosting and bug
+tracking facilities for xmms-syncup.  Since Future development will likely be
+limited to tuning parameters and increasing configurability through the GTK
+GUI.
+
+
+Heritage: xmms-syncup is based on the GPL'ed xmms-netamp plugin which slaves
+XMMS clients to a Winamp server.
+http://axelbrown.com/xmms/xmms-netamp-0.2.1.tar.gz
+
+Requirements: 1) the server must be running the GPL'ed xmmsd plugin
+(http://xmmsd.sourceforge.net) to provide state information about its player to
+clients.  If there is demand, a drop-in replacement server for xmmsd may be
+written to provide the necessary features for xmms-syncup.  2) Synchronization
+is greatly improved by running NTP or equivalent to maintain consistent system
+clocks.
+
+Portability: xmms-syncup has no more compilation dependencies than xmms itself.
+These are primarily glib and gtk.  xmms-syncup has been developed and tested on
+the Gentoo/x86 and FC3/amd64 Linux platforms.
+
+Pitfalls of alternate solutions:
+
+1) Manual solutions (hitting "play" on the count of 3) are inconvenient and
+error-prone
+
+2) Streaming solutions attempt to minimize gaps in playback, and so use
+variable client buffers that are not synchronized between clients
+
+3) Hardware solutions (such as the SqueezeBox) require additional investment 
+
+4) The most mature software solution for *NIX is the SlimServer, which requires
+a custom player and has poor configuration options for synchronization
+
+In contract, xmms-syncup is lightweight, robust, and compatible with one of the
+most popular media players for Linux.
